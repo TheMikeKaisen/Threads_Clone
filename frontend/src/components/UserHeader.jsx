@@ -38,11 +38,16 @@ const UserHeader = () => {
                 <Avatar 
                     name = "Mark Zuckerberg"
                     src = '/zuck-avatar.png'
-                    size={"xl"}
+                    size={
+                        {
+                            base: 'md',
+                            md: 'xl',
+                        }
+                    }
                 />
             </Box>
         </Flex>
-        <Text>Co-founder, executive chairman and CEO of MEeta Platforms.</Text>
+        <Text>Co-founder, executive chairman and CEO of Meta Platforms.</Text>
 
         <Flex justifyContent={'space-between'} w={'full'}>
             <Flex gap={'2'} alignItems={'center'}>
@@ -70,6 +75,20 @@ const UserHeader = () => {
                     </Menu>
                 </Box>
             </Flex>
+        </Flex>
+
+        <Flex w={'full'}>
+            <Flex flex={1} borderBottom={'1.5px solid white'} justifyContent={'center'} pb={'3'} 
+                cursor={'pointer'}>
+                <Text fontWeight={'bold'}>Threads</Text>
+            </Flex>
+            <Flex flex={1} borderBottom={'1.5px solid gray'} justifyContent={'center'} pb={'3'} 
+                cursor={'pointer'} color={'gray.light'}>
+                    <Text fontWeight={'bold'}>
+                        Replies
+                    </Text>
+                </Flex>
+
         </Flex>
     </VStack>
   )
