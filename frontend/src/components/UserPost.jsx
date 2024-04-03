@@ -74,6 +74,8 @@ const UserPost = ({likes, replies, postImg, postTitle}) => {
             <Text fontSize={'small'}> 
                {postTitle}
             </Text>
+
+            {/* post image */}
             <Box borderRadius={6} overflow={'hidden'} border={'1px solid'} borderColor={'gray.light'}>
                 {/* image */}
                 { postImg && <Image 
