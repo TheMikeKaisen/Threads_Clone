@@ -1,10 +1,11 @@
 import express from "express";
-import { followUnfollowUser, loginUser, logoutUser, signupUser } from "../controllers/user.controller.js";
+import { followUnfollowUser, getUserProfile, loginUser, logoutUser, signupUser, updateUser } from "../controllers/user.controller.js";
 import protectRoute from "../middleware/protectRoute.js";
 
 
 const router = express.Router();
 
+router.get("/profile/:username", getUserProfile)
 router.post("/signup", signupUser)
 router.post("/login", loginUser)
 router.post("/logout", logoutUser)
@@ -12,6 +13,7 @@ router.post("/logout", logoutUser)
 
 // Protected Routes.
 router.post("/follow/:id",protectRoute , followUnfollowUser)
+router.post("/update/:id", protectRoute, updateUser)
 
 
 
