@@ -25,7 +25,11 @@ const userSchema = Schema({
         type: String, 
         default: ""
     },
-    follower: {
+    followers: {
+        type:[String],
+        default:[]
+    },
+    following: {
         type:[String],
         default:[]
     },
