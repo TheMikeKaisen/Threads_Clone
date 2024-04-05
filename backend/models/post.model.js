@@ -14,8 +14,10 @@ const postSchema = Schema({
         type: String
     },
     likes:{
-        type:Number, 
-        default: 0
+        // array of user id's
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'User',
+        default: []
     },
     replies: [
         {
@@ -29,7 +31,8 @@ const postSchema = Schema({
                 required: true
             },
             userProfilePic: {
-                type: String
+                type: String,
+                default: ""
             },
             username: {
                 type: String,
