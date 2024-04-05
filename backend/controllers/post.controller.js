@@ -56,9 +56,30 @@ const getPost = async(req, res) => {
     }
 }
 
+const deletePost = async(req, res) => {
+    try {
+        const postId = req.params.id
+        const post = await Post.findById(postId)
+        if(!post){
+            return res.status(400).json({message: "Post could'nt be found."})
+        }
+    
+        if(post.postedBy.toString() !== req.user._id.toString()){
+            return res.status(400).json({message: "Unautherized delete."})
+        }
+    
+        await Post.findByIdAndDelete(postId)
+        res.status(200).json({message: "Post deleted Successfully"})
+    } catch (error) {
+        res.status(500).json({message: error.message})
+        console.log("An error occurred while deleting the post: ", error.message)
+    }
+}
+
 
 
 export {
     createPost,
-    getPost
+    getPost,
+    deletePost
 }
