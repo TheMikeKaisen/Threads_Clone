@@ -4,6 +4,7 @@ import connectDB from './db/connectDB.js';
 import cookieParser from 'cookie-parser';
 
 import userRoutes from './routes/userRoutes.js'
+import postRoutes from './routes/postRoute.js'
 
 dotenv.config();
 
@@ -11,7 +12,7 @@ const app = express()
 const PORT = process.env.PORT || 5000
 
 
-
+//middlewares
 app.use(express.json());
 app.use(express.urlencoded({extended: true}))
 app.use(cookieParser())
@@ -19,6 +20,7 @@ app.use(cookieParser())
 
 //routes
 app.use("/api/users", userRoutes)
+app.use("/api/posts", postRoutes)
 
 connectDB()
 .then(()=>{
