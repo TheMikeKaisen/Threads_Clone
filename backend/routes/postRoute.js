@@ -1,9 +1,12 @@
 import express from 'express'
-import { createPost } from '../controllers/post.controller.js';
+import { createPost, getPost } from '../controllers/post.controller.js';
 import protectRoute from '../middleware/protectRoute.js';
 
 const router = express.Router()
 
+router.get("/:id",getPost)
+
+//protected routes
 router.post('/create', protectRoute, createPost)
 
 
