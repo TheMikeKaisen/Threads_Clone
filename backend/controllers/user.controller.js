@@ -13,7 +13,7 @@ const signupUser = async(req, res) => {
         const user = await User.findOne({$or:[{email}, {username}]})
 
         if(user){
-            return res.status(400).json({message: "User already exists"})
+            return res.status(400).json({error: "User already exists"})
         }
 
         const newUser = new User({
@@ -35,12 +35,12 @@ const signupUser = async(req, res) => {
             const createdUser = await User.findById(newUser._id).select("-password")
             res.status(201).json({data: createdUser})
         } else{
-            res.status(400).json({message: "Invalid user data"})
+            res.status(400).json({error: "Invalid user data"})
         }
 
     } catch (error) {
-        res.status(500).json({message: error.message})
-        console.log('Error in signupUser', err.message)
+        res.status(500).json({error: error.message})
+        console.log('Error in signupUser', error.message)
     }
 }
 
@@ -49,11 +49,11 @@ const loginUser = async(req, res) => {
         const { username, password } = req.body;
         const user = await User.findOne({username});
         if(!user){
-            return res.status(400).json({message: "User does not exist !!"})
+            return res.status(400).json({error: "User does not exist !!"})
         }
         const isPasswordCorrect = await bcrypt.compare(password, user?.password || "") //if the user exists, bcrypt will compare with its password, if not, then the password will be compared with an empty string.
         if(!isPasswordCorrect){
-            return res.status(400).json({message: "Password is incorrect !!"})
+            return res.status(400).json({error: "Password is incorrect !!"})
         }
 
         generateTokenandSetCookie(user._id, res);
@@ -66,6 +66,7 @@ const loginUser = async(req, res) => {
         })
     } catch (error) {
           console.log("Error while logging user: ", error.message)  
+          res.status(500).json({error: error.message})
     }
 }
 
@@ -74,7 +75,7 @@ const logoutUser = async(req, res) => {
         res.cookie('jwt', "", {maxAge: 1}) // set the cookie's value, which consists of logged In user details, is set to an empty string. i.e. log out the user.
         res.status(200).json({message: "User Logged Out successfully"})
     } catch (error) {
-        res.status(500).json({message: error.message})
+        res.status(500).json({error: error.message})
         console.log("Error while Logging Out User: ", error.message)
     }
 }
@@ -85,12 +86,12 @@ const followUnfollowUser = async(req, res) => {
         const userToFollow = await User.findById(id)
         const currentUser = await User.findById(req.user._id)
         if(!userToFollow || !currentUser){
-            return res.status(400).json({message: "User not Found!"})
+            return res.status(400).json({error: "User not Found!"})
         }
         const isFollowing = currentUser.following.includes(id)
 
         if(id === req.user._id.toString()){
-            return res.status(400).json({message: "You cannot follow yourself!"})
+            return res.status(400).json({error: "You cannot follow yourself!"})
         }
 
         if(isFollowing){
@@ -109,7 +110,7 @@ const followUnfollowUser = async(req, res) => {
         }
 
     } catch (error) {
-        res.status(500).json({message: error.message})
+        res.status(500).json({error: error.message})
         console.log("Error while following/unfollowing User: ", error.message)
     }
 }
@@ -120,12 +121,12 @@ const updateUser = async(req, res) => {
         const userId = req.user._id;
 
         if(userId.toString() !== req.params.id){
-            return res.status(400).json({message: "You cannot update other accounts."})
+            return res.status(400).json({error: "You cannot update other accounts."})
         }
         
         let user = await User.findById(userId)
         if(!user){
-            return res.status(400).json({message: "User not found"})
+            return res.status(400).json({error: "User not found"})
         }
 
         user.name = name || user.name
@@ -138,7 +139,7 @@ const updateUser = async(req, res) => {
         user = await user.save();
 
         if(!user){
-            return res.status(500).json({message: "error occured while updating user."})
+            return res.status(500).json({error: "error occured while updating user."})
         }
         res.status(200).json({
             message: "User updated successfully",
@@ -147,7 +148,7 @@ const updateUser = async(req, res) => {
 
 
     } catch (error) {
-        res.status(500).json({message: error.message})
+        res.status(500).json({error: error.message})
         console.log("Error occured while updating User: ", error.message)
     }
 }
@@ -157,11 +158,11 @@ const getUserProfile = async(req, res) => {
     try {
         const user = await User.findOne({username}).select("-password -updatedAt")
         if(!user){
-            return res.status(400).json({message: "User not found!"})
+            return res.status(400).json({error: "User not found!"})
         }
         res.status(200).json(user)
     } catch (error) {
-        res.status(500).json({message: error.message})
+        res.status(500).json({error: error.message})
         console.log("Error occured while extracting the user: ", error.message)
     }
 }

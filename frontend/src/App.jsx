@@ -1,19 +1,28 @@
 import {Container } from "@chakra-ui/react";
-import {Button} from '@chakra-ui/button'
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import UserPage from "./pages/UserPage";
 import PostPage from "./pages/PostPage";
 import Header from "./components/Header";
+import HomePage from "./pages/HomePage";
+import AuthPage from "./pages/AuthPage";
+import { useRecoilValue } from "recoil";
+import userAtom from "../atoms/userAtom";
 
 
 function App() {
 
+  const user = useRecoilValue(userAtom);
   return (
   <Container maxW="620px">
     <Header />
       <Routes>
+        <Route path="/" element={user ? <HomePage /> : <Navigate to='/auth'/>} /> {/* if user exists, then direct to home page, otherwise, navigate towards authentication page. */}
+
+        <Route path="/auth" element={!user ? <AuthPage />: <Navigate to='/'/>} />
         <Route path="/:username" element={<UserPage />}/>
         <Route path="/:username/post/:pid" element={<PostPage />}/>
+
+        
       </Routes>
   </Container>
 
