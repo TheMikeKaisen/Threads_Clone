@@ -2,7 +2,7 @@ import React from 'react'
 import SignupCard from '../components/SignupCard'
 import LoginCard from '../components/LoginCard'
 import { useRecoilValue } from 'recoil'
-import authScreenState from '../../atoms/authAtom'
+import authScreenState from '../atoms/authAtom'
 
 const AuthPage = () => {
 

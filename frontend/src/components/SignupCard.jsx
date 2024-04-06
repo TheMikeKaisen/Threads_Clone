@@ -22,12 +22,15 @@ import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 
 //recoil
 import { useSetRecoilState } from 'recoil'
-import authScreenState from '../../atoms/authAtom'
+import authScreenState from '../atoms/authAtom'
+import useShowToast from '../hooks/useShowToast'
+import userAtom from '../atoms/userAtom'
 
 export default function SignupCard() {
   const [showPassword, setShowPassword] = useState(false)
 
   const setAuthScreen = useSetRecoilState(authScreenState)
+  const setUser = useSetRecoilState(userAtom)
 
   // states
   const [input, setInput] = useState({
@@ -37,7 +40,7 @@ export default function SignupCard() {
     password: ""
   })
 
-  const toast = useToast();
+  const showToast = useShowToast();
 
 
   const handleSignup = async() =>{
@@ -51,18 +54,13 @@ export default function SignupCard() {
         })
         const data = await res.json()
         if(data.error){
-            toast({
-                title: 'Error', 
-                description: data.error, 
-                status: 'error', 
-                duration: 3000, 
-                isClosable: true
-            })
+            showToast("Error", data.error, "error")
             return
         }
 
         // if there is user then store it in th local storage.
         localStorage.setItem("user-threads", JSON.stringify(data))
+        setUser(data);
 
         
     } catch (error) {
