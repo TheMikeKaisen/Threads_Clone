@@ -28,7 +28,6 @@ export default function UserProfileEdit() {
         username:user.username,
         email:user.email,
         bio:user.bio,
-        profilePicture: user.profilePicture,
         password:""
 
     })
@@ -36,18 +35,37 @@ export default function UserProfileEdit() {
     // toast
     const showToast = useShowToast()
 
-    const handleClick = async()=>{
-        try {
-            console.log(input)
-        } catch (error) {
-            showToast("Error", error.message, 'error')
-        }
-    } 
 
     const fileRef = useRef(null)
 
     const {handleImageChange, imgUrl} = usePreviewImg()
+
+    const handleSubmit = async(e) => {
+        e.preventDefault()
+        
+        try {
+            const res = await fetch(`/api/users/update/${user._id}`, {
+                method: "PUT", 
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({...input, profilePicture: imgUrl})
+            })
+            const data = await res.json()
+            if(data.error){
+                showToast('Error', data.error, 'error')
+            }
+            showToast("Success", "Profile updated successfully", 'success' )
+            setUser(data);
+            localStorage.setItem("user-threads", JSON.stringify(data))
+
+        } catch (error) {
+            showToast("Error", error.message, 'error')
+        }
+    }
   return (
+    <form onSubmit={handleSubmit}>
+
     <Flex
       align={'center'}
       justify={'center'}
@@ -138,9 +156,10 @@ export default function UserProfileEdit() {
             Cancel
           </Button>
           <Button
-            onClick={handleClick}
+            
             bg={'blue.400'}
             color={'white'}
+            type='submit'
             w="full"
             _hover={{
               bg: 'blue.500',
@@ -150,5 +169,7 @@ export default function UserProfileEdit() {
         </Stack>
       </Stack>
     </Flex>
+        
+    </form>
   )
 }

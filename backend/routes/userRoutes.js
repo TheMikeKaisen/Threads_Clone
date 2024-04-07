@@ -13,7 +13,7 @@ router.post("/logout", logoutUser)
 
 // Protected Routes.
 router.post("/follow/:id",protectRoute , followUnfollowUser)
-router.post("/update/:id", protectRoute, updateUser)
+router.put("/update/:id", protectRoute, updateUser)
 
 
 

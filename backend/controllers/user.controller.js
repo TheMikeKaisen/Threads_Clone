@@ -2,6 +2,8 @@ import User from "../models/user.model.js";
 import bcrypt from 'bcryptjs'
 import generateTokenandSetCookie from "../utils/helper/generateTokenandSetCookie.js";
 
+import {v2 as cloudinary} from 'cloudinary'
+
 
 
 
@@ -120,7 +122,8 @@ const followUnfollowUser = async(req, res) => {
 
 const updateUser = async(req, res) => {
     try {
-        const { name, email, username, password, profilePic, bio } = req.body;
+        const { name, email, username, password, bio } = req.body;
+        let {profilePicture} = req.body;
         const userId = req.user._id;
 
         if(userId.toString() !== req.params.id){
@@ -132,9 +135,18 @@ const updateUser = async(req, res) => {
             return res.status(400).json({error: "User not found"})
         }
 
+        if(profilePicture){
+            if(user.profilePicture){
+                await cloudinary.uploader.destroy(user.profilePicture.split("/").pop().split(".")[0])
+            }
+            const uploadedResponse = await cloudinary.uploader.upload(profilePicture)
+            profilePicture = uploadedResponse.secure_url
+            
+        }
+
         user.name = name || user.name
         user.username = username || user.username
-        user.profilePic = profilePic || user.profilePic
+        user.profilePicture = profilePicture || user.profilePicture
         user.bio = bio || user.bio
         user.email = email || user.email
         user.password = password || user.password
@@ -144,10 +156,9 @@ const updateUser = async(req, res) => {
         if(!user){
             return res.status(500).json({error: "error occured while updating user."})
         }
-        res.status(200).json({
-            message: "User updated successfully",
-            user
-        })
+
+        const newUser = await User.findById(user._id).select("-password")
+        res.status(200).json(newUser)
 
 
     } catch (error) {
