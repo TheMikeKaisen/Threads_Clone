@@ -35,6 +35,8 @@ export default function UserProfileEdit() {
     // toast
     const showToast = useShowToast()
 
+    const [updating, setUpdating] = useState(false);
+
 
     const fileRef = useRef(null)
 
@@ -43,6 +45,7 @@ export default function UserProfileEdit() {
     const handleSubmit = async(e) => {
         e.preventDefault()
         
+        setUpdating(true);
         try {
             const res = await fetch(`/api/users/update/${user._id}`, {
                 method: "PUT", 
@@ -61,7 +64,9 @@ export default function UserProfileEdit() {
 
         } catch (error) {
             showToast("Error", error.message, 'error')
-        }
+        } finally{
+          setUpdating(false)
+    }
     }
   return (
     <form onSubmit={handleSubmit}>
@@ -146,7 +151,7 @@ export default function UserProfileEdit() {
           />
         </FormControl>
         <Stack spacing={6} direction={['column', 'row']}>
-          <Button
+          <Button 
             bg={'red.400'}
             color={'white'}
             w="full"
@@ -160,6 +165,7 @@ export default function UserProfileEdit() {
             bg={'blue.400'}
             color={'white'}
             type='submit'
+            isLoading={updating}
             w="full"
             _hover={{
               bg: 'blue.500',

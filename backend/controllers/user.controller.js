@@ -93,11 +93,11 @@ const followUnfollowUser = async(req, res) => {
         if(!userToFollow || !currentUser){
             return res.status(400).json({error: "User not Found!"})
         }
-        const isFollowing = currentUser.following.includes(id)
-
         if(id === req.user._id.toString()){
             return res.status(400).json({error: "You cannot follow yourself!"})
         }
+        const isFollowing = currentUser.following.includes(id)
+
 
         if(isFollowing){
             //if following, then unfollow
