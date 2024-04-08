@@ -8,12 +8,12 @@ import { Link as RouterLink } from 'react-router-dom'
 import useShowToast from '../hooks/useShowToast'
 
 const UserHeader = ({user}) => {
-
+    const toast = useToast();
     const showToast = useShowToast()
 
-    const currentUser = useRecoilValue(userAtom)
+    const currentUser = useRecoilValue(userAtom) || {}
 
-    const [following, setFollowing] = useState(user.followers.includes(currentUser._id))
+    const [following, setFollowing] = useState(user?.followers.includes(currentUser._id || false))
     const [updating, setUpdating] = useState(false)
 
     const copyURL = (e) => {
