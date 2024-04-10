@@ -58,9 +58,6 @@ export default function LoginCard() {
         localStorage.setItem('user-threads', JSON.stringify(data))
         setUser(data);
 
-        console.log(data);
-
-
 
     } catch (error) {
         showToast("Error", error, 'error')
@@ -128,7 +125,7 @@ export default function LoginCard() {
               <Button
               isLoading={loading}
                 onClick={handleClick}
-                loadingText="Submitting"
+                loadingText="Loggin in"
                 size="lg"
                 bg={useColorModeValue("gray.600", "gray.700")}
                 color={'white'}

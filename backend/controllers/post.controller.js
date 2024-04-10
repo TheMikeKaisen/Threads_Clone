@@ -160,7 +160,7 @@ const getFeedPosts = async(req, res) => {
             return res.status(500).json({error: "Error while fetching posts."})
         }
     
-        res.status(200).json({message: "feed fetched successfully", feed})
+        res.status(200).json(feed)
     } catch (error) {
         res.status(500).json({error: error.message})
         console.log("Error while fetching post.", error.message)
