@@ -132,7 +132,7 @@ const replyToPost = async(req, res) => {
         await post.save()
 
         res.status(200).json({
-            message:"replies successfully",
+            message:"replied successfully",
             post
         })
 
@@ -168,11 +168,26 @@ const getFeedPosts = async(req, res) => {
     
 }
 
+const getUserPosts = async(req, res) => {
+    const {username} = req.params;
+    try {
+        const user = await User.findOne({username})
+        if(!user) {
+            return res.status(400).json({error: "User not found"})
+        }
+        const posts = await Post.find({postedBy: user._id}).sort({createdAt: -1})
+        return res.status(200).json(posts)
+    } catch (error) {
+        return res.status(500).json({error: "Error while fetching user posts"})
+    }
+}
+
 export {
     createPost,
     getPost,
     deletePost,
     likeUnlikePost,
     replyToPost,
-    getFeedPosts
+    getFeedPosts,
+    getUserPosts
 }

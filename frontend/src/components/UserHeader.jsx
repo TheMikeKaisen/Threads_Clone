@@ -13,7 +13,7 @@ const UserHeader = ({user}) => {
 
     const currentUser = useRecoilValue(userAtom) || {}
 
-    const [following, setFollowing] = useState(user?.followers.includes(currentUser._id || false))
+    const [following, setFollowing] = useState(user?.followers.includes(currentUser?._id || false))
     const [updating, setUpdating] = useState(false)
 
     const copyURL = (e) => {
@@ -53,7 +53,7 @@ const UserHeader = ({user}) => {
            }
            if(!following){
             showToast("Success",`Followed ${user.username}`, 'success')
-            user.followers.push(currentUser._id) // for the followers count on the header to decrese
+            user.followers.push(currentUser?._id) // for the followers count on the header to decrese
            }
 
            if(data.error) {
@@ -107,7 +107,7 @@ const UserHeader = ({user}) => {
         </Flex>
         <Text>{user.bio}</Text>
 
-        {currentUser._id === user._id ?
+        {currentUser?._id === user._id ?
         <Link as={RouterLink} to='/update'>
             <Button size={'sm'}> 
                 Update Profile
