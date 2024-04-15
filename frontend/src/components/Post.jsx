@@ -4,6 +4,9 @@ import Actions from './Actions'
 import { Link, useNavigate } from 'react-router-dom'
 import useShowToast from '../hooks/useShowToast'
 import {formatDistanceToNow} from 'date-fns'
+import { useRecoilValue } from 'recoil'
+import { DeleteIcon } from '@chakra-ui/icons'
+import userAtom from '../atoms/userAtom'
 
 const Post = ({post, postedBy}) => {
 
@@ -12,6 +15,8 @@ const Post = ({post, postedBy}) => {
 
     const [liked, setLiked] = useState(false)
     const [user, setUser] = useState(null)
+
+    const currentUser = useRecoilValue(userAtom);
 
     const showToast = useShowToast()
     
@@ -36,8 +41,28 @@ const Post = ({post, postedBy}) => {
       
     }, [postedBy, showToast])
 
+    const handleDeletePost = async(e) => {
+      try {
+        e.preventDefault()
+        if(!window.confirm("Are you sure you want to delete this post?")) return;
+
+        const res = await fetch(`/api/posts/${post?._id}`, {
+          method: 'DELETE'
+        })
+        const data = await res.json();
+        if(data.error){
+          showToast('Error', data.error, 'error')
+          return
+        }
+        showToast('Success', 'Post Deleted successfully', 'success')
+
+      } catch (error) {
+        showToast('Error', error.message, 'error')
+      }
+    }
+
   return (
-    <Link to={`/${user?.username}/post/${post._id}`}>
+    <Link to={`/${user?.username}/post/${post?._id}`}>
 
     
     <Flex padding={'25px'}>
@@ -59,8 +84,8 @@ const Post = ({post, postedBy}) => {
 
               {post?.replies[0] && (
                 <Avatar 
-                name={post.replies[0]?.name}
-                src={post.replies[0]?.userProfilePic}
+                name={post?.replies[0]?.name}
+                src={post?.replies[0]?.userProfilePic}
                 size={'xs'}
                 position={'absolute'}
                 top={'0px'}
@@ -72,8 +97,8 @@ const Post = ({post, postedBy}) => {
 
               {post.replies[1] && (
                 <Avatar 
-                name={post.replies[1]?.name}
-                src={post.replies[1]?.userProfilePic}
+                name={post?.replies[1]?.name}
+                src={post?.replies[1]?.userProfilePic}
                 size={'xs'}
                 position={'absolute'}
                 bottom={'0px'}
@@ -84,8 +109,8 @@ const Post = ({post, postedBy}) => {
 
                 {post.replies[2] && (
                   <Avatar 
-                  name={post.replies[2]?.name}
-                  src={post.replies[2]?.userProfilePic}
+                  name={post?.replies[2]?.name}
+                  src={post?.replies[2]?.userProfilePic}
                   size={'xs'}
                   position={'absolute'}
                   bottom={'0px'}
@@ -115,19 +140,22 @@ const Post = ({post, postedBy}) => {
                 </Flex>
                 <Flex gap={4} alignItems={'center'} >
                     <Text fontSize={'sm'} width={36} color={'gray.light'}>
-                        {formatDistanceToNow(new Date(post.createdAt))} ago
+                        {formatDistanceToNow(new Date(post?.createdAt))} ago
                     </Text>
+
+                      {currentUser?._id === user?._id && <DeleteIcon size={20} onClick={handleDeletePost} />}
+
                 </Flex>    
             </Flex>
             <Text fontSize={'small'}> 
-               {post.text}
+               {post?.text}
             </Text>
 
             {/* post image */}
             <Box borderRadius={6} overflow={'hidden'} border={'1px solid'} borderColor={'gray.light'}>
                 {/* image */}
-                { post.img && <Image 
-                    src={post.img} w={'full'}
+                { post?.img && <Image 
+                    src={post?.img} w={'full'}
                 />}
             </Box>
             <Flex gap={3} my={1}>

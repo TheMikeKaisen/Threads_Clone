@@ -12,7 +12,7 @@ const Actions = ({post: post_}) => {
 	const showToast = useShowToast()
 	
 	const [post, setPost] = useState(post_)
-	const [liked, setLiked] = useState(post.likes.includes(user?._id))
+	const [liked, setLiked] = useState(post?.likes.includes(user?._id))
 	const [reply, setReply] = useState("")
 	const [replying, setReplying] = useState(false)
 
@@ -86,6 +86,7 @@ const Actions = ({post: post_}) => {
 					role='img'
 					viewBox='0 0 24 22'
 					width='20'
+					cursor={'pointer'}
 					onClick={handleLikeAndUnlike}
 				>
 					<path
@@ -104,6 +105,7 @@ const Actions = ({post: post_}) => {
 					role='img'
 					viewBox='0 0 24 24'
 					width='20'
+					cursor={'pointer'}
 					onClick={onOpen}
 					
 				>

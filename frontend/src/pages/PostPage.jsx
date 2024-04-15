@@ -1,49 +1,132 @@
-import { Avatar, Box, Button, Divider, Flex, Image, Text } from '@chakra-ui/react'
-import React, { useState } from 'react'
+import { Avatar, Box, Button, Divider, Flex, Image, Spinner, Text } from '@chakra-ui/react'
+import React, { useEffect, useState } from 'react'
 import { BsThreeDots } from 'react-icons/bs'
 import Actions from '../components/Actions'
 import Comment from '../components/Comment'
+import { useNavigate, useParams } from 'react-router-dom'
+import useShowToast from '../hooks/useShowToast'
+import { formatDistanceToNow } from 'date-fns'
+import { useRecoilValue } from 'recoil'
+import userAtom from '../atoms/userAtom'
+import { DeleteIcon } from '@chakra-ui/icons'
 
 const PostPage = () => {
 
-    const [liked, setLiked] = useState(false)
+    const [user, setUser] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [post, setPost] = useState(null)
+    const showToast = useShowToast();
+    const navigate = useNavigate()
+
+    const currentUser = useRecoilValue(userAtom)
+
+    const {pid, username} = useParams();
+
+    useEffect(() => {
+        const getUser = async() => {
+          try {
+            const res = await fetch(`/api/users/profile/${username}`)
+            const data = await res.json()
+            if(data.error){
+              showToast('Error', data.error, 'error')
+            }
+            // console.log("user", data)
+            // console.log("currentUser", currentUser?._id)
+            setUser(data);
+          } catch (error) {
+            showToast('Error', error.message, 'error')
+          } finally{
+            setLoading(false)
+          }
+        }
+
+        const getPost = async() => {
+            try {
+                const res = await fetch(`/api/posts/${pid}`)
+                const data = await res.json()
+                if(data.error) {
+                    showToast('Error', data.error, 'error')
+                    return
+                }
+                setPost(data);
+            } catch (error) {
+                showToast('Error', error.message, 'error')
+            }
+        }
+
+
+    
+        
+        getUser();
+        getPost();
+      }, [username, pid, showToast]);
+
+      const handleDeletePost = async(e) => {
+        try {
+          e.preventDefault()
+          if(!window.confirm("Are you sure you want to delete this post?")) return;
+  
+          const res = await fetch(`/api/posts/${post?._id}`, {
+            method: 'DELETE'
+          })
+          const data = await res.json();
+          if(data.error){
+            showToast('Error', data.error, 'error')
+            return
+          }
+          showToast('Success', 'Post Deleted successfully', 'success')
+          navigate(`/${user.username}`)
+  
+        } catch (error) {
+          showToast('Error', error.message, 'error')
+        }
+      }
+
+      if(!user && loading) {
+        return (
+            <Flex justifyContent={'center'}>
+                <Spinner size={'xl'} />
+            </Flex>
+        )
+      }
+
+      if(!post) return <h1>No post to be shown here!!</h1>
+
   return (
     <>
     <Flex>
         <Flex w={'full'} alignItems={'center'} gap={3}>
-            <Avatar src='/zuck-avatar.png' size={'md'} name='Mark Zuckerberg' />
+            <Avatar src={user.profilePicture} size={'md'} name={post.username} />
             <Flex>
                 <Text fontSize={'sm'} fontWeight={'bold'}>
-                    markzuckerberg
+                    {user.username}
                 </Text>
                 <Image src='/verified.png' w={4} h={4} ml={4} />
             </Flex>
         </Flex>
-        <Flex gap={4} alignItems={'center'}>
-            <Text fontSize={'medium'} color={'gray.light'}>
-                1d
+        <Flex gap={4} alignItems={'center'} >
+            <Text fontSize={'sm'} width={36} color={'gray.light'}>
+                {formatDistanceToNow(new Date(post?.createdAt))} ago
             </Text>
-            <BsThreeDots />
-        </Flex>
+
+                {currentUser?._id === user?._id && <DeleteIcon size={20} cursor={'pointer'} onClick={handleDeletePost} />}
+
+        </Flex>   
     </Flex>
 
-    <Text my={3}>Let&apos;s Talk about threads</Text>
-    <Box borderRadius={6} overflow={'hidden'} border={'1px solid'} borderColor={'gray.light'}>
+    <Text my={3}>{post.text}</Text>
+    {post.img && <Box borderRadius={6} overflow={'hidden'} border={'1px solid'} borderColor={'gray.light'}>
                 {/* image */}
                 <Image 
-                    src='/post1.png' w={'full'}
+                    src={post.img} w={'full'}
                 />
-    </Box>
+    </Box>}
 
     <Flex gap={3} my={3}>
-        <Actions liked={liked} setLiked={setLiked} />
+        <Actions post={post} />
     </Flex>
 
-    <Flex gap={2} alignItems={'center'}>
-        <Text color={'gray.light'} fontSize={'small'}>123 replies</Text>
-        <Box w={0.5} h={0.5} borderRadius={'full'} bg={'gray.light'}></Box>
-        <Text color={'gray.light'} fontSize={'small'}>{200 + (liked ? 1 : 0)} likes</Text>
-    </Flex>
+    
     <Divider my={4} />
 
     <Flex justifyContent={"space-between"}>
@@ -60,27 +143,16 @@ const PostPage = () => {
 
     <Divider my={4}/>
 
-    <Comment 
-    comment="Looks really good" 
-    createdAt='2d'
-    likes={100}
-    username='johndoe'
-    avatarUrl= 'https://bit.ly/dan-abramov'    
-    />
-    <Comment 
-    comment="Woow!!" 
-    createdAt='3d'
-    likes={156}
-    username='person1'
-    avatarUrl= 'https://bit.ly/code-beast'    
-    />
-    <Comment 
-    comment="nais" 
-    createdAt='1d'
-    likes={20}
-    username='person2'
-    avatarUrl= 'https://bit.ly/kent-c-dodds'    
-    />
+    {post.replies.map((reply)=>(
+
+        <Comment 
+        key={reply._id}
+        reply={reply}  
+        lastReply = {reply._id === post.replies[post.replies.length - 1]._id} 
+        />
+        
+    ))}
+   
 
     </>
   )
