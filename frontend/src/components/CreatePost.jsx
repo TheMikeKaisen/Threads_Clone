@@ -4,8 +4,10 @@ import React, { useRef, useState } from 'react'
 import { BsFillImageFill } from 'react-icons/bs'
 import usePreviewImg from '../hooks/usePreviewImg'
 import useShowToast from '../hooks/useShowToast'
-import { useRecoilValue } from 'recoil'
+import { useRecoilState, useRecoilValue } from 'recoil'
 import userAtom from '../atoms/userAtom'
+import postsAtom from '../atoms/postsAtom'
+import { useParams } from 'react-router-dom'
 
 const MAX_CHAR = 500;
 
@@ -15,6 +17,9 @@ const CreatePost = () => {
     const [postText, setPostText] = useState("")
     const [remainingChar, setRemainingChar] = useState(MAX_CHAR);
     const [loading, setLoading] = useState(false)
+
+    //recoil state
+    const [posts, setPosts] = useRecoilState(postsAtom)
     
     const handleTextChange = (e)=>{
         const inputText = e.target.value; 
@@ -36,6 +41,7 @@ const CreatePost = () => {
     const showToast = useShowToast()
 
     const user = useRecoilValue(userAtom)
+    const {username} = useParams()
 
     const handleCreatePost = async() => {
         setLoading(true);
@@ -55,6 +61,10 @@ const CreatePost = () => {
             }
             console.log(data)
             showToast('Success', "Post uploaded Successfully", 'success')
+            if(username === user.username) {
+              setPosts([data, ...posts])
+            }
+
             onClose();
         } catch (error) {
             showToast('Error', error.message, 'error')

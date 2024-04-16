@@ -5,6 +5,8 @@ import { useParams } from 'react-router-dom'
 import useShowToast from '../hooks/useShowToast'
 import { Flex, Spinner } from '@chakra-ui/react'
 import Post from '../components/Post'
+import { useRecoilState } from 'recoil'
+import postsAtom from '../atoms/postsAtom'
 
 const UserPage = () => {
 
@@ -12,8 +14,8 @@ const UserPage = () => {
   const {username} = useParams()
 
   const showToast = useShowToast()
-  const [loading, setLoading] = useState(true);
-  const [posts, setPosts] = useState([])
+  const [loading, setLoading] = useState(false);
+  const [posts, setPosts] = useRecoilState(postsAtom)
   const [fetchingPost, setFetchingPost] = useState(false)
 
   useEffect(() => {
@@ -49,12 +51,15 @@ const UserPage = () => {
         setPosts([])
       } finally{
         setFetchingPost(false)
+        setLoading(false);
       }
     }
       
     getUser();
     getPosts();
-  }, [username, showToast]);
+  }, [username, showToast, setPosts]);
+
+  console.log("Recoil state", posts)
 
 
 

@@ -1,24 +1,26 @@
 import { Avatar, Box, Button, Divider, Flex, Image, Spinner, Text } from '@chakra-ui/react'
 import React, { useEffect, useState } from 'react'
-import { BsThreeDots } from 'react-icons/bs'
 import Actions from '../components/Actions'
 import Comment from '../components/Comment'
 import { useNavigate, useParams } from 'react-router-dom'
 import useShowToast from '../hooks/useShowToast'
 import { formatDistanceToNow } from 'date-fns'
-import { useRecoilValue } from 'recoil'
+import { useRecoilState, useRecoilValue } from 'recoil'
 import userAtom from '../atoms/userAtom'
 import { DeleteIcon } from '@chakra-ui/icons'
+import postsAtom from '../atoms/postsAtom'
 
 const PostPage = () => {
 
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
-    const [post, setPost] = useState(null)
+    const [posts, setPosts] = useRecoilState(postsAtom)
     const showToast = useShowToast();
     const navigate = useNavigate()
 
     const currentUser = useRecoilValue(userAtom)
+
+    const currentPost = posts[0];
 
     const {pid, username} = useParams();
 
@@ -48,7 +50,7 @@ const PostPage = () => {
                     showToast('Error', data.error, 'error')
                     return
                 }
-                setPost(data);
+                setPosts([data]);
             } catch (error) {
                 showToast('Error', error.message, 'error')
             }
@@ -59,14 +61,14 @@ const PostPage = () => {
         
         getUser();
         getPost();
-      }, [username, pid, showToast]);
+      }, [username, posts, pid, showToast]);
 
       const handleDeletePost = async(e) => {
         try {
           e.preventDefault()
           if(!window.confirm("Are you sure you want to delete this post?")) return;
   
-          const res = await fetch(`/api/posts/${post?._id}`, {
+          const res = await fetch(`/api/posts/${currentPost?._id}`, {
             method: 'DELETE'
           })
           const data = await res.json();
@@ -90,13 +92,13 @@ const PostPage = () => {
         )
       }
 
-      if(!post) return <h1>No post to be shown here!!</h1>
+      if(!currentPost) return <h1>No post to be shown here!!</h1>
 
   return (
     <>
     <Flex>
         <Flex w={'full'} alignItems={'center'} gap={3}>
-            <Avatar src={user.profilePicture} size={'md'} name={post.username} />
+            <Avatar src={user.profilePicture} size={'md'} name={currentPost.username} />
             <Flex>
                 <Text fontSize={'sm'} fontWeight={'bold'}>
                     {user.username}
@@ -106,7 +108,7 @@ const PostPage = () => {
         </Flex>
         <Flex gap={4} alignItems={'center'} >
             <Text fontSize={'sm'} width={36} color={'gray.light'}>
-                {formatDistanceToNow(new Date(post?.createdAt))} ago
+                {formatDistanceToNow(new Date(currentPost?.createdAt))} ago
             </Text>
 
                 {currentUser?._id === user?._id && <DeleteIcon size={20} cursor={'pointer'} onClick={handleDeletePost} />}
@@ -114,16 +116,16 @@ const PostPage = () => {
         </Flex>   
     </Flex>
 
-    <Text my={3}>{post.text}</Text>
-    {post.img && <Box borderRadius={6} overflow={'hidden'} border={'1px solid'} borderColor={'gray.light'}>
+    <Text my={3}>{currentPost.text}</Text>
+    {currentPost.img && <Box borderRadius={6} overflow={'hidden'} border={'1px solid'} borderColor={'gray.light'}>
                 {/* image */}
                 <Image 
-                    src={post.img} w={'full'}
+                    src={currentPost.img} w={'full'}
                 />
     </Box>}
 
     <Flex gap={3} my={3}>
-        <Actions post={post} />
+        <Actions post={currentPost} />
     </Flex>
 
     
@@ -143,12 +145,12 @@ const PostPage = () => {
 
     <Divider my={4}/>
 
-    {post.replies.map((reply)=>(
+    {currentPost.replies.map((reply)=>(
 
         <Comment 
         key={reply._id}
         reply={reply}  
-        lastReply = {reply._id === post.replies[post.replies.length - 1]._id} 
+        lastReply = {reply._id === currentPost.replies[currentPost.replies.length - 1]._id} 
         />
         
     ))}

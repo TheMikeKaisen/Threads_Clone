@@ -1,17 +1,18 @@
 import { Box, Button, Flex, FormControl, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text, useDisclosure } from '@chakra-ui/react'
 import React, { useState } from 'react'
-import {useRecoilValue} from 'recoil'
+import {useRecoilState, useRecoilValue} from 'recoil'
 import userAtom from '../atoms/userAtom'
 import useShowToast from '../hooks/useShowToast'
+import postsAtom from '../atoms/postsAtom'
 
 
-const Actions = ({post: post_}) => {
+const Actions = ({post}) => {
 	
 	const { isOpen, onOpen, onClose } = useDisclosure()
 	const user = useRecoilValue(userAtom)
 	const showToast = useShowToast()
 	
-	const [post, setPost] = useState(post_)
+	const [posts, setPosts] = useRecoilState(postsAtom)
 	const [liked, setLiked] = useState(post?.likes.includes(user?._id))
 	const [reply, setReply] = useState("")
 	const [replying, setReplying] = useState(false)
@@ -33,10 +34,22 @@ const Actions = ({post: post_}) => {
 			}
 			if(!liked){
 				// if not liked, then add the current userid to the list of likes
-				setPost({...post, likes:[...post.likes, user._id]})
+				const updatedPost = posts.map((p)=>{
+					if(p._id === post._id){
+						return {...p, likes:[...p.likes, user._id]}
+					}
+					return p;
+				})
+				setPosts(updatedPost)
 			} else{
 				// if already liked, then remove the user id from the liked list
-				setPost({...post, likes: post.likes.filter((id) => id !== user._id)})
+				const updatedPost = posts.map((p)=>{
+					if(p._id === post._id){
+						return {...p, likes: p.likes.filter((id)=> id !== user._id)}
+					}
+					return p;
+				})
+				setPosts(updatedPost)
 
 			}
 			console.log(data)
@@ -63,7 +76,12 @@ const Actions = ({post: post_}) => {
 				showToast('Error', data.error, 'error')
 				return
 			}
-			setPost({...post, replies:[...post.replies, data]})
+			const updatedPost = posts.map((p)=> {
+				if(p._id === post.id) {
+					return { ...p, replies: [...p.replies, data]}
+				}
+			})
+			await setPosts(updatedPost)
 			console.log(post)
 			onClose()
 			setReply("")

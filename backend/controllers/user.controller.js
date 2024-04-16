@@ -4,6 +4,7 @@ import generateTokenandSetCookie from "../utils/helper/generateTokenandSetCookie
 
 import {v2 as cloudinary} from 'cloudinary'
 import mongoose from "mongoose";
+import Post from "../models/post.model.js";
 
 
 
@@ -153,6 +154,18 @@ const updateUser = async(req, res) => {
         user.password = password || user.password
 
         user = await user.save();
+
+        // Find all posts that this user replied and update username and userProfilePic fields
+        await Post.updateMany(
+            {"replies.userId": userId},
+            {
+                $set: {
+                    "replies.$[reply].username":user.username, 
+                    "replies.$[reply].userProfilePic": user.profilePicture
+                }
+            },
+            {arrayFilters: [{"reply.userId":userId}]}
+        )
 
         if(!user){
             return res.status(500).json({error: "error occured while updating user."})
