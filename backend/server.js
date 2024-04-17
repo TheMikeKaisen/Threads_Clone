@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 
 import userRoutes from './routes/userRoutes.js'
 import postRoutes from './routes/postRoute.js'
+import messageRoute from './routes/messageRoute.js'
 
 import {v2 as cloudinary} from 'cloudinary'
 
@@ -29,6 +30,7 @@ app.use(cookieParser())
 //routes
 app.use("/api/users", userRoutes)
 app.use("/api/posts", postRoutes)
+app.use('/api/messages', messageRoute)
 
 connectDB()
 .then(()=>{
